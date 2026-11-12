@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareerFinder - Interactive Career Planning Platform</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+ 
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+              950: '#2e1065',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+   
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .glass-dark {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(0.5deg); }
+    }
+    .floating-card {
+      animation: floatCard 5s ease-in-out infinite;
+    }
+
+    
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(124, 58, 237, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(124, 58, 237, 0.6); }
+    }
+    .glow-effect {
+      animation: glowPulse 3s infinite;
+    }
+
+    
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #7c3aed;
+    }
+
+    
+    .card-hover-effect {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover-effect:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.1), 0 8px 10px -6px rgba(124, 58, 237, 0.1);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
+
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-3 pointer-events-none"></div>
+
+  
+  <header class="w-full bg-gradient-to-r from-brand-700 via-brand-600 to-indigo-700 text-white shadow-lg sticky top-0 z-40 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      
+      <a href="#" class="flex items-center space-x-2 text-2xl md:text-3xl font-extrabold tracking-tight group">
+        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 group-hover:scale-105 transition-transform">
+          <i class="fa-solid fa-compass text-white text-xl"></i>
+        </div>
+        
+        <span class="tracking-tight">
+          <span class="text-slate-950 font-black">Career</span><span class="text-white font-medium">Finder</span>
+        </span>
+      </a>
+
+      
+      <nav class="hidden md:flex items-center space-x-1 lg:space-x-3 font-semibold text-sm">
+        <a href="#quiz-section" class="px-4 py-2 rounded-full text-white/90 hover:text-white hover:bg-white/10 transition">
+          <i class="fa-solid fa-wand-magic-sparkles mr-2 text-amber-300"></i>Career Quiz
+        </a>
+        <a href="#explore-section" class="px-4 py-2 rounded-full text-white/90 hover:text-white hover:bg-white/10 transition">
+          <i class="fa-solid fa-layer-group mr-2 text-purple-200"></i>Explore Paths
+        </a>
+        <a href="#roadmap-section" class="px-4 py-2 rounded-full text-white/90 hover:text-white hover:bg-white/10 transition">
+          <i class="fa-solid fa-route mr-2 text-emerald-300"></i>Skill Roadmap
+        </a>
+      </nav>
+
+  
+      <div class="flex items-center space-x-3">
+        <button onclick="scrollToQuiz()" class="bg-white text-brand-700 font-bold px-5 py-2.5 rounded-full hover:bg-brand-50 transition shadow-md hover:shadow-lg text-sm flex items-center">
+          <span>Get Started</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+        </button>
+
+        <button id="mobileNavToggle" class="md:hidden p-2 rounded-lg text-white hover:bg-white/10 focus:outline-none">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+
+    </div>
+
+
+    <div id="mobileDrawer" class="hidden md:hidden bg-brand-800 border-t border-white/10 px-4 py-4 space-y-2 text-sm font-medium">
+      <a href="#quiz-section" class="block px-3 py-2 rounded-lg hover:bg-white/10" onclick="closeMobileDrawer()">Career Quiz</a>
+      <a href="#explore-section" class="block px-3 py-2 rounded-lg hover:bg-white/10" onclick="closeMobileDrawer()">Explore Paths</a>
+      <a href="#roadmap-section" class="block px-3 py-2 rounded-lg hover:bg-white/10" onclick="closeMobileDrawer()">Skill Roadmap</a>
+    </div>
+  </header>
+
+  
+  <section class="relative overflow-hidden bg-gradient-to-b from-brand-50/50 via-white to-slate-50 py-12 md:py-20">
+    
+    <div class="absolute -top-24 -left-20 w-96 h-96 bg-brand-300/30 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/2 -right-20 w-96 h-96 bg-indigo-300/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          
+          <div class="inline-flex items-center space-x-2 bg-brand-100/80 border border-brand-200 text-brand-800 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+            <span class="flex h-2 w-2 rounded-full bg-brand-600 animate-ping"></span>
+            <span>Next-Gen Career Intelligence Platform</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
+            Discover your ideal path &amp; build your <span class="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">future career.</span>
+          </h1>
+
+          <p class="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            Match your skills, work style, and aspirations with high-growth tech, design, and business roles. Take our 2-minute assessment or explore curated roadmap paths.
+          </p>
+
+          
+          <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-xl border border-slate-200/80 flex flex-col sm:flex-row items-center gap-2 max-w-xl mx-auto lg:mx-0">
+            <div class="flex items-center flex-1 w-full px-3 py-2 space-x-3">
+              <i class="fa-solid fa-magnifying-glass text-brand-500 text-lg"></i>
+              <input 
+                id="heroSearchInput" 
+                type="text" 
+                placeholder="Search roles e.g. UX Designer, AI Engineer..." 
+                class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm font-medium"
+                onkeyup="handleHeroSearch(event)"
+              />
+            </div>
+            <button onclick="triggerSearchFromHero()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition shadow-md flex items-center justify-center space-x-2">
+              <span>Find Match</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+
+          
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs font-semibold text-slate-500 pt-2">
+            <span class="text-slate-400">Popular:</span>
+            <button onclick="filterByTag('AI')" class="bg-slate-100 hover:bg-brand-50 hover:text-brand-700 px-3 py-1 rounded-lg transition border border-slate-200">AI &amp; Data</button>
+            <button onclick="filterByTag('UX')" class="bg-slate-100 hover:bg-brand-50 hover:text-brand-700 px-3 py-1 rounded-lg transition border border-slate-200">UX Design</button>
+            <button onclick="filterByTag('FinTech')" class="bg-slate-100 hover:bg-brand-50 hover:text-brand-700 px-3 py-1 rounded-lg transition border border-slate-200">FinTech</button>
+            <button onclick="filterByTag('Sustainability')" class="bg-slate-100 hover:bg-brand-50 hover:text-brand-700 px-3 py-1 rounded-lg transition border border-slate-200">Green Tech</button>
+          </div>
+
+        </div>
+
+        
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="relative w-full max-w-md">
+            
+            
+            <div class="absolute inset-0 bg-gradient-to-tr from-brand-600 to-indigo-500 rounded-3xl blur-2xl opacity-20 transform scale-95"></div>
+
+            
+            <div class="relative bg-white rounded-3xl p-6 shadow-2xl border border-slate-100 floating-card">
+              
+             
+              <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center space-x-3">
+                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-md">
+                    <i class="fa-solid fa-brain"></i>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-brand-600">Featured Match</span>
+                    <h3 id="heroMatchTitle" class="text-lg font-bold text-slate-900 leading-tight">AI Systems Engineer</h3>
+                  </div>
+                </div>
+                <div class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold text-xs px-2.5 py-1 rounded-full flex items-center space-x-1">
+                  <i class="fa-solid fa-bolt text-emerald-500"></i>
+                  <span id="heroMatchPercent">98% Match</span>
+                </div>
+              </div>
+
+              
+              <div class="grid grid-cols-2 gap-3 my-5">
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span class="text-slate-400 text-[11px] font-semibold block">Avg Salary</span>
+                  <span id="heroMatchSalary" class="text-sm font-extrabold text-slate-800">$145,000 - $210,000</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span class="text-slate-400 text-[11px] font-semibold block">5-Yr Growth</span>
+                  <span id="heroMatchGrowth" class="text-sm font-extrabold text-brand-600">+34% Demand</span>
+                </div>
+              </div>
+
+              
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs font-semibold">
+                  <span class="text-slate-600">Core Competencies</span>
+                  <span class="text-brand-600 font-bold">Top 3 Demanded</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="bg-brand-50 text-brand-700 border border-brand-200 text-xs font-semibold px-2.5 py-1 rounded-lg">PyTorch / LLMs</span>
+                  <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold px-2.5 py-1 rounded-lg">Python Systems</span>
+                  <span class="bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold px-2.5 py-1 rounded-lg">Cloud MLOps</span>
+                </div>
+              </div>
+
+              
+              <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <button onclick="cycleHeroCard()" class="text-xs font-semibold text-slate-500 hover:text-brand-600 flex items-center space-x-1 transition">
+                  <i class="fa-solid fa-arrows-rotate"></i>
+                  <span>Shuffle Sample Role</span>
+                </button>
+                <button onclick="openCardDetails(0)" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                  View Roadmap
+                </button>
+              </div>
+
+            </div>
+
+            
+            <div class="absolute -bottom-6 -left-6 bg-slate-900 text-white p-4 rounded-2xl shadow-xl hidden sm:flex items-center space-x-3 border border-slate-800 z-20">
+              <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg">
+                <i class="fa-solid fa-star"></i>
+              </div>
+              <div>
+                <div class="text-xs text-slate-400 font-medium">User Satisfaction</div>
+                <div class="text-sm font-extrabold text-white">4.9 / 5.0 (4,800+ Ratings)</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+ 
+  <section class="bg-white border-y border-slate-200/80 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="p-2">
+          <div class="text-2xl md:text-3xl font-black text-brand-700">45,000+</div>
+          <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Careers Matched</div>
+        </div>
+        <div class="p-2">
+          <div class="text-2xl md:text-3xl font-black text-slate-900">$132,000</div>
+          <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Average Starting Salary</div>
+        </div>
+        <div class="p-2">
+          <div class="text-2xl md:text-3xl font-black text-brand-700">94%</div>
+          <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Readiness Placement Rate</div>
+        </div>
+        <div class="p-2">
+          <div class="text-2xl md:text-3xl font-black text-slate-900">180+</div>
+          <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Verified Skill Roadmaps</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+   <section id="quiz-section" class="py-16 md:py-24 bg-slate-900 text-white relative overflow-hidden">
+   
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-brand-600/30 rounded-full blur-3xl"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      
+      
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-brand-400 font-extrabold text-xs uppercase tracking-widest bg-brand-950/80 px-3 py-1 rounded-full border border-brand-800">
+          Instant Discovery
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-black text-white mt-3">Interactive Career Match Quiz</h2>
+        <p class="text-slate-400 text-sm sm:text-base mt-2">
+          Answer 3 quick questions to calculate your personalized career persona and top role matches.
+        </p>
+      </div>
+
+      
+      <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl relative">
+        
+       
+        <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-700/70">
+          <div class="flex items-center space-x-3">
+            <div id="quizStepBadge" class="w-9 h-9 rounded-xl bg-brand-600 text-white font-extrabold flex items-center justify-center text-sm shadow-md">
+              1
+            </div>
+            <div>
+              <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Step <span id="quizStepNum">1</span> of 3</div>
+              <div id="quizStepTitle" class="text-sm font-bold text-white">Work Style &amp; Aptitude</div>
+            </div>
+          </div>
+         
+          <div class="w-32 sm:w-48 bg-slate-700 h-2 rounded-full overflow-hidden">
+            <div id="quizProgressBar" class="bg-gradient-to-r from-brand-500 to-indigo-500 h-full w-1/3 transition-all duration-500"></div>
+          </div>
+        </div>
+
+       
+        <div id="quizQuestion1" class="quiz-step-content space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-white mb-4">What type of challenges energize you the most?</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <button onclick="selectAnswer(1, 'tech')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-brand-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-code text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Building Complex Systems</div>
+                <div class="text-xs text-slate-400 mt-1">Coding algorithm architectures, data flows &amp; automation.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(1, 'design')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-indigo-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-pen-nib text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Visual &amp; Human Experience</div>
+                <div class="text-xs text-slate-400 mt-1">Designing intuitive UI, user empathy, aesthetics &amp; interfaces.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(1, 'business')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-emerald-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-chart-line text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Market Strategy &amp; Growth</div>
+                <div class="text-xs text-slate-400 mt-1">Finances, product scalability, operations &amp; business models.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(1, 'impact')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-teal-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-leaf text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Environmental &amp; Social Impact</div>
+                <div class="text-xs text-slate-400 mt-1">Sustainability, green initiatives &amp; ethical governance.</div>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+       
+        <div id="quizQuestion2" class="quiz-step-content hidden space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-white mb-4">What is your ideal work environment?</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <button onclick="selectAnswer(2, 'remote')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-cyan-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-laptop-house text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">100% Remote &amp; Autonomous</div>
+                <div class="text-xs text-slate-400 mt-1">Work from anywhere with high flexibility and independence.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(2, 'startup')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-amber-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-rocket text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Fast-Paced High Growth Startup</div>
+                <div class="text-xs text-slate-400 mt-1">Wear multiple hats, innovate fast, high-risk high-reward.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(2, 'corporate')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-purple-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-building text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Established Global Enterprise</div>
+                <div class="text-xs text-slate-400 mt-1">Structured career ladders, robust resources &amp; stability.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(2, 'consulting')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-rose-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-user-tie text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Client Consulting &amp; Advisory</div>
+                <div class="text-xs text-slate-400 mt-1">Solve diverse problems across multiple industry clients.</div>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+      
+        <div id="quizQuestion3" class="quiz-step-content hidden space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-white mb-4">What is your primary career priority right now?</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <button onclick="selectAnswer(3, 'high_salary')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-emerald-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-sack-dollar text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Maximizing Salary &amp; Equity</div>
+                <div class="text-xs text-slate-400 mt-1">Focus on top tier compensation &amp; rapid financial growth.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(3, 'future_proof')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-sky-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-shield-halved text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">AI-Resistant Future Proofing</div>
+                <div class="text-xs text-slate-400 mt-1">Skills with highest 10-year market longevity and demand.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(3, 'creative')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-pink-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Creative Freedom &amp; Innovation</div>
+                <div class="text-xs text-slate-400 mt-1">Expressing original concepts with modern design tech.</div>
+              </div>
+            </button>
+
+            <button onclick="selectAnswer(3, 'balance')" class="quiz-option p-4 rounded-2xl bg-slate-700/50 hover:bg-brand-600/30 border border-slate-600 hover:border-brand-500 text-left transition flex items-start space-x-3 group">
+              <div class="p-3 bg-slate-800 rounded-xl text-yellow-400 group-hover:bg-brand-600 group-hover:text-white transition">
+                <i class="fa-solid fa-heart text-lg"></i>
+              </div>
+              <div>
+                <div class="font-bold text-sm text-white">Work-Life Harmony</div>
+                <div class="text-xs text-slate-400 mt-1">Sustainable workload with personal development balance.</div>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        
+        <div id="quizResultScreen" class="hidden text-center py-6 space-y-6">
+          
+          <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-400 to-brand-500 text-slate-950 text-3xl font-black flex items-center justify-center mx-auto shadow-xl">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+
+          <div>
+            <span class="text-xs uppercase tracking-widest text-emerald-400 font-extrabold">Assessment Complete</span>
+            <h3 id="resultPersonaTitle" class="text-2xl sm:text-3xl font-black text-white mt-1">The AI Systems Innovator</h3>
+            <p id="resultPersonaDesc" class="text-slate-300 text-sm max-w-lg mx-auto mt-2">
+              You thrive on high-impact technology architectures and predictive intelligent software.
+            </p>
+          </div>
+
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto text-left">
+            <div class="bg-slate-700/60 p-4 rounded-2xl border border-slate-600">
+              <span class="text-[11px] text-slate-400 font-semibold block">Top Match Role</span>
+              <span id="resultTopRole" class="text-sm font-bold text-white">AI Systems Engineer</span>
+            </div>
+            <div class="bg-slate-700/60 p-4 rounded-2xl border border-slate-600">
+              <span class="text-[11px] text-slate-400 font-semibold block">Est. Salary</span>
+              <span id="resultSalary" class="text-sm font-bold text-emerald-400">$145k - $210k</span>
+            </div>
+            <div class="bg-slate-700/60 p-4 rounded-2xl border border-slate-600">
+              <span class="text-[11px] text-slate-400 font-semibold block">5-Yr Demand</span>
+              <span id="resultGrowth" class="text-sm font-bold text-brand-300">+34% Surge</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            <button onclick="applyQuizResultToExplore()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition">
+              Explore Filtered Career Cards
+            </button>
+            <button onclick="resetQuiz()" class="w-full sm:w-auto bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold text-sm px-5 py-3 rounded-xl transition">
+              Retake Quiz
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+ 
+  <section id="explore-section" class="py-16 md:py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+        <div>
+          <span class="text-brand-700 font-bold text-xs uppercase tracking-widest bg-brand-100 px-3 py-1 rounded-full">
+            Curated Pathways
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mt-2">Explore High-Demand Roles</h2>
+          <p class="text-slate-600 text-sm sm:text-base mt-1">
+            Browse verified career profiles, salary benchmarks, and core skill requirements.
+          </p>
+        </div>
+
+        
+        <div class="flex flex-wrap items-center gap-3">
+          
+          <div class="flex items-center space-x-2 bg-white px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold shadow-sm">
+            <span class="text-slate-400"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort:</span>
+            <select id="sortSelect" onchange="filterAndRenderCards()" class="bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer">
+              <option value="match">Highest Match Score</option>
+              <option value="salary">Highest Salary</option>
+              <option value="growth">Highest Growth</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+     
+      <div class="flex items-center space-x-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+        <button onclick="setCategoryFilter('all')" class="cat-tab bg-brand-600 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-md transition whitespace-nowrap" data-cat="all">
+          All Pathways
+        </button>
+        <button onclick="setCategoryFilter('Tech')" class="cat-tab bg-white hover:bg-brand-50 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-full border border-slate-200 transition whitespace-nowrap" data-cat="Tech">
+          <i class="fa-solid fa-laptop-code text-brand-600 mr-1.5"></i>Tech &amp; AI
+        </button>
+        <button onclick="setCategoryFilter('Design')" class="cat-tab bg-white hover:bg-brand-50 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-full border border-slate-200 transition whitespace-nowrap" data-cat="Design">
+          <i class="fa-solid fa-palette text-indigo-600 mr-1.5"></i>UX &amp; Creative
+        </button>
+        <button onclick="setCategoryFilter('Business')" class="cat-tab bg-white hover:bg-brand-50 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-full border border-slate-200 transition whitespace-nowrap" data-cat="Business">
+          <i class="fa-solid fa-chart-pie text-emerald-600 mr-1.5"></i>FinTech &amp; Biz
+        </button>
+        <button onclick="setCategoryFilter('Sustainability')" class="cat-tab bg-white hover:bg-brand-50 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-full border border-slate-200 transition whitespace-nowrap" data-cat="Sustainability">
+          <i class="fa-solid fa-seedling text-teal-600 mr-1.5"></i>Green Tech
+        </button>
+      </div>
+
+     
+      <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+      </div>
+
+    </div>
+  </section>
+
+  
+  <section id="roadmap-section" class="py-16 md:py-24 bg-white border-t border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        
+        <div class="lg:col-span-5 space-y-6">
+          <div>
+            <span class="text-brand-700 font-bold text-xs uppercase tracking-widest bg-brand-100 px-3 py-1 rounded-full">
+              Personalized Plan
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mt-2">Skill Roadmap Tracker</h2>
+            <p class="text-slate-600 text-sm mt-2">
+              Select your target career, check off completed milestones, and track your overall job readiness score.
+            </p>
+          </div>
+
+         
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Target Career Path</label>
+            <select id="roadmapRoleSelector" onchange="changeRoadmapRole()" class="w-full bg-white border border-slate-300 text-slate-900 text-sm font-bold rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-brand-600">
+            
+            </select>
+          </div>
+
+        
+          <div class="bg-gradient-to-br from-slate-900 to-brand-950 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-extrabold uppercase tracking-widest text-brand-300">Career Readiness Score</span>
+              <span id="readinessBadge" class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold px-3 py-1 rounded-full">
+                On Track
+              </span>
+            </div>
+
+            <div class="flex items-baseline space-x-2 my-2">
+              <span id="readinessPercentage" class="text-5xl font-black text-white">40%</span>
+              <span class="text-slate-400 text-sm font-medium">Completed</span>
+            </div>
+
+            
+            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden my-4 border border-white/10">
+              <div id="readinessBar" class="bg-gradient-to-r from-brand-500 via-indigo-400 to-emerald-400 h-full w-[40%] transition-all duration-700"></div>
+            </div>
+
+            <p id="readinessMessage" class="text-xs text-slate-300 leading-relaxed">
+              Complete Phase 1 core milestone items to unlock project certification recommendations.
+            </p>
+          </div>
+
+        </div>
+
+       
+        <div class="lg:col-span-7">
+          <div class="bg-slate-50 rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-200">
+              <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fa-solid fa-list-check text-brand-600"></i>
+                <span>Action Plan &amp; Milestones</span>
+              </h3>
+              <button onclick="resetRoadmapProgress()" class="text-xs font-semibold text-slate-500 hover:text-brand-600 transition">
+                Reset Checkmarks
+              </button>
+            </div>
+
+            
+            <div id="roadmapTasksContainer" class="space-y-6">
+             
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  
+  <div id="detailModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 transition-opacity">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative border border-slate-200">
+      
+     
+      <button onclick="closeCardDetails()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+     
+      <div id="modalHeaderContent">
+       
+      </div>
+
+    
+      <div id="modalBodyContent" class="mt-6 space-y-6 text-sm text-slate-600">
+       
+      </div>
+
+      
+      <div class="mt-8 pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
+        <button id="modalSelectRoadmapBtn" onclick="" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition text-center text-sm shadow-md">
+          Set as My Target Roadmap
+        </button>
+        <button onclick="closeCardDetails()" class="px-5 py-3 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50 transition text-sm">
+          Close Window
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        
+       
+        <div class="flex items-center space-x-2 text-xl font-extrabold">
+          <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center text-sm">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+          <span>
+            <span class="text-white font-black">Career</span><span class="text-brand-400 font-light">Finder</span>
+          </span>
+        </div>
+
+        
+        <div class="flex flex-wrap justify-center space-x-6 text-xs font-semibold">
+          <a href="#quiz-section" class="hover:text-white transition">Career Assessment</a>
+          <a href="#explore-section" class="hover:text-white transition">Role Database</a>
+          <a href="#roadmap-section" class="hover:text-white transition">Skill Tracker</a>
+          <a href="#" class="hover:text-white transition">Privacy &amp; Terms</a>
+        </div>
+
+        <p class="text-xs text-slate-500">
+          &copy; <span id="currentYear">2026</span> CareerFinder Platform. Empowering professional journeys.
+        </p>
+
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+   
+    const careerData = [
+      {
+        id: 0,
+        title: "AI Systems Engineer",
+        category: "Tech",
+        matchScore: 98,
+        rating: 4.9,
+        reviewCount: 342,
+        salaryMin: 145000,
+        salaryMax: 210000,
+        salaryFormatted: "$145,000 - $210,000",
+        growth: 34,
+        growthText: "+34% 5-Yr Surge",
+        degree: "B.S. Computer Science / AI Engineering Certification",
+        tags: ["PyTorch", "Python", "LLMs", "Cloud MLOps"],
+        description: "Architects and deploys scalable artificial intelligence algorithms, neural networks, and automated pipeline infrastructures into enterprise systems.",
+        milestones: [
+          { phase: "Phase 1: Foundation", title: "Master Python & Data Structure Fundamentals", done: true },
+          { phase: "Phase 1: Foundation", title: "Complete Machine Learning Algorithms Certification", done: true },
+          { phase: "Phase 2: Execution", title: "Train & Deploy custom LLM fine-tuning model on AWS/GCP", done: false },
+          { phase: "Phase 2: Execution", title: "Build Vector Database API with Deep Learning pipeline", done: false },
+          { phase: "Phase 3: Launch", title: "Publish GitHub Open Source Portfolio & Mock Tech Interviews", done: false }
+        ]
+      },
+      {
+        id: 1,
+        title: "UX/UI Product Designer",
+        category: "Design",
+        matchScore: 95,
+        rating: 4.8,
+        reviewCount: 289,
+        salaryMin: 110000,
+        salaryMax: 165000,
+        salaryFormatted: "$110,000 - $165,000",
+        growth: 18,
+        growthText: "+18% Annual Demand",
+        degree: "B.A. Interaction Design / HCI Micro-Degree",
+        tags: ["Figma", "User Research", "Design Systems", "Prototyping"],
+        description: "Creates intuitive, human-centered digital interfaces and product user experiences backed by rigorous user research and interactive design systems.",
+        milestones: [
+          { phase: "Phase 1: Foundation", title: "Master Design Theory, Color Systems & Accessibility Standard", done: true },
+          { phase: "Phase 1: Foundation", title: "Figma Advanced Component & Auto-Layout Certification", done: true },
+          { phase: "Phase 2: Execution", title: "Conduct 5 User Interviews & Build End-to-End Mobile App Prototype", done: false },
+          { phase: "Phase 2: Execution", title: "Publish Design System Documentation & Micro-Interactions", done: false },
+          { phase: "Phase 3: Launch", title: "Launch Interactive Web Portfolio & Case Study Review", done: false }
+        ]
+      },
+      {
+        id: 2,
+        title: "Data Strategist & Analytics Lead",
+        category: "Tech",
+        matchScore: 92,
+        rating: 4.7,
+        reviewCount: 215,
+        salaryMin: 120000,
+        salaryMax: 175000,
+        salaryFormatted: "$120,000 - $175,000",
+        growth: 25,
+        growthText: "+25% 5-Yr Surge",
+        degree: "B.S. Statistics, Business Analytics or Data Analytics",
+        tags: ["SQL", "Tableau", "Python", "Predictive Modeling"],
+        description: "Translates complex datasets into actionable revenue decisions, predictive forecasting models, and executive data visualizations.",
+        milestones: [
+          { phase: "Phase 1: Foundation", title: "Master Advanced SQL Queries & Relational DB Schema", done: true },
+          { phase: "Phase 1: Foundation", title: "Tableau & PowerBI Dashboard Certification", done: false },
+          { phase: "Phase 2: Execution", title: "Build Predictive Churn Analytics Model with Python", done: false },
+          { phase: "Phase 2: Execution", title: "Perform A/B Testing Case Study for E-Commerce Platform", done: false },
+          { phase: "Phase 3: Launch", title: "Present Executive Data Storytelling Presentation", done: false }
+        ]
+      },
+      {
+        id: 3,
+        title: "FinTech Product Manager",
+        category: "Business",
+        matchScore: 89,
+        rating: 4.9,
+        reviewCount: 402,
+        salaryMin: 135000,
+        salaryMax: 190000,
+        salaryFormatted: "$135,000 - $190,000",
+        growth: 22,
+        growthText: "+22% High Growth",
+        degree: "B.S. Finance, Business Tech, or MBA",
+        tags: ["Agile Roadmap", "Financial APIs", "Product Ops", "Metrics"],
+        description: "Leads cross-functional engineering and design teams to build next-generation payment systems, digital banking platforms, and investment tech.",
+        milestones: [
+          { phase: "Phase 1: Foundation", title: "Agile Scrum Product Owner Certification", done: true },
+          { phase: "Phase 1: Foundation", title: "Financial API Integration & Open Banking Fundamentals", done: true },
+          { phase: "Phase 2: Execution", title: "Write PRD (Product Requirement Document) for Mobile Wallet", done: false },
+          { phase: "Phase 2: Execution", title: "Launch Unit Economics & User Retention Analytics Sprint", done: false },
+          { phase: "Phase 3: Launch", title: "Product Leadership Strategy Simulation", done: false }
+        ]
+      },
+      {
+        id: 4,
+        title: "Sustainability Tech Consultant",
+        category: "Sustainability",
+        matchScore: 86,
+        rating: 4.6,
+        reviewCount: 178,
+        salaryMin: 95000,
+        salaryMax: 145000,
+        salaryFormatted: "$95,000 - $145,000",
+        growth: 30,
+        growthText: "+30% Green Tech Surge",
+        degree: "B.S. Environmental Science or Sustainable Business",
+        tags: ["ESG Auditing", "Carbon Analytics", "Clean Energy", "Policy"],
+        description: "Advises enterprise organizations on carbon footprint reduction, renewable energy software adoption, and ESG compliance frameworks.",
+        milestones: [
+          { phase: "Phase 1: Foundation", title: "ESG Standards (GRI & SASB) Auditor Certification", done: true },
+          { phase: "Phase 1: Foundation", title: "Carbon Accounting & Lifecycle Assessment Math", done: false },
+          { phase: "Phase 2: Execution", title: "Conduct Corporate Net-Zero Transition Audit Project", done: false },
+          { phase: "Phase 2: Execution", title: "Model Renewable Energy Microgrid Financial ROI", done: false },
+          { phase: "Phase 3: Launch", title: "Deliver Sustainability Strategy Pitch to Board", done: false }
+        ]
+      },
+      {
+        id: 5,
+        title: "Cloud Cybersecurity Architect",
+        category: "Tech",
+        matchScore: 94,
+        rating: 4.9,
+        reviewCount: 310,
+        salaryMin: 140000,
+        salaryMax: 200000,
+        salaryFormatted: "$140,000 - $200,000",
+        growth: 32,
+        growthText: "+32% 5-Yr Surge",
+        degree: "B.S. Cyber Security / CISSP Certification",
+        tags: ["Zero Trust", "AWS Security", "Penetration Testing", "Threat Modeling"],
+        description: "Protects critical cloud ecosystems by engineering Zero-Trust network defenses, automated threat detection, and security governance.",
+        milestones: [
+          { phase: "Phase 1: Foundation", title: "AWS Certified Security Specialist", done: true },
+          { phase: "Phase 1: Foundation", title: "Master Zero Trust Architecture & Encryption Standards", done: true },
+          { phase: "Phase 2: Execution", title: "Perform Network Vulnerability & Pentesting Lab", done: false },
+          { phase: "Phase 2: Execution", title: "Configure Incident Response Automation Script", done: false },
+          { phase: "Phase 3: Launch", title: "CISSP Professional Exam Completion", done: false }
+        ]
+      }
+    ];
+
+    
+    let currentCategoryFilter = 'all';
+    let currentHeroIndex = 0;
+    let selectedRoadmapRoleId = 0;
+    let quizAnswers = {};
+    let quizStep = 1;
+
+   
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      document.getElementById('currentYear').innerText = new Date().getFullYear();
+
+     
+      const navBtn = document.getElementById('mobileNavToggle');
+      if (navBtn) {
+        navBtn.addEventListener('click', () => {
+          const drawer = document.getElementById('mobileDrawer');
+          drawer.classList.toggle('hidden');
+        });
+      }
+
+    
+      filterAndRenderCards();
+      populateRoadmapSelector();
+      renderRoadmapMilestones();
+    });
+
+    function closeMobileDrawer() {
+      document.getElementById('mobileDrawer').classList.add('hidden');
+    }
+
+    function showToast(message, icon = 'fa-check-circle') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 border border-slate-700 pointer-events-auto transition transform translate-y-2 opacity-0 text-xs font-semibold';
+      toast.innerHTML = `<i class="fa-solid ${icon} text-emerald-400 text-base"></i><span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+   
+    function cycleHeroCard() {
+      currentHeroIndex = (currentHeroIndex + 1) % careerData.length;
+      const role = careerData[currentHeroIndex];
+
+      document.getElementById('heroMatchTitle').innerText = role.title;
+      document.getElementById('heroMatchPercent').innerText = `${role.matchScore}% Match`;
+      document.getElementById('heroMatchSalary').innerText = role.salaryFormatted;
+      document.getElementById('heroMatchGrowth').innerText = role.growthText;
+      
+      showToast(`Previewing: ${role.title}`, 'fa-arrows-rotate');
+    }
+
+    function handleHeroSearch(e) {
+      if (e.key === 'Enter') {
+        triggerSearchFromHero();
+      }
+    }
+
+    function triggerSearchFromHero() {
+      const val = document.getElementById('heroSearchInput').value.trim().toLowerCase();
+      if (!val) {
+        scrollToExplore();
+        return;
+      }
+
+      
+      const cardsGrid = document.getElementById('cardsGrid');
+      const filtered = careerData.filter(c => 
+        c.title.toLowerCase().includes(val) || 
+        c.tags.some(t => t.toLowerCase().includes(val)) ||
+        c.category.toLowerCase().includes(val)
+      );
+
+      renderCardsList(filtered);
+      scrollToExplore();
+      showToast(`Showing search results for "${val}"`, 'fa-magnifying-glass');
+    }
+
+    function filterByTag(tag) {
+      document.getElementById('heroSearchInput').value = tag;
+      triggerSearchFromHero();
+    }
+
+    function scrollToQuiz() {
+      document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function scrollToExplore() {
+      document.getElementById('explore-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+   
+    function selectAnswer(step, answerKey) {
+      quizAnswers[`step${step}`] = answerKey;
+
+      if (step < 3) {
+      
+        document.getElementById(`quizQuestion${step}`).classList.add('hidden');
+        quizStep = step + 1;
+        document.getElementById(`quizQuestion${quizStep}`).classList.remove('hidden');
+
+        
+        document.getElementById('quizStepBadge').innerText = quizStep;
+        document.getElementById('quizStepNum').innerText = quizStep;
+        
+        const titles = ["Work Style & Aptitude", "Ideal Environment", "Primary Career Goal"];
+        document.getElementById('quizStepTitle').innerText = titles[quizStep - 1];
+        
+        const progressPercent = (quizStep / 3) * 100;
+        document.getElementById('quizProgressBar').style.width = `${progressPercent}%`;
+
+      } else {
+      
+        calculateQuizResult();
+      }
+    }
+
+    function calculateQuizResult() {
+     
+      document.getElementById('quizQuestion3').classList.add('hidden');
+      document.getElementById('quizResultScreen').classList.remove('hidden');
+
+      document.getElementById('quizStepTitle').innerText = "Personalized Recommendation";
+      document.getElementById('quizProgressBar').style.width = "100%";
+
+      
+      let matchedRole = careerData[0]; 
+      if (quizAnswers.step1 === 'design') {
+        matchedRole = careerData[1]; 
+      } else if (quizAnswers.step1 === 'business') {
+        matchedRole = careerData[3]; 
+      } else if (quizAnswers.step1 === 'impact') {
+        matchedRole = careerData[4]; 
+      } else if (quizAnswers.step2 === 'corporate') {
+        matchedRole = careerData[2]; 
+      }
+
+      document.getElementById('resultPersonaTitle').innerText = `Matched: ${matchedRole.title}`;
+      document.getElementById('resultPersonaDesc').innerText = matchedRole.description;
+      document.getElementById('resultTopRole').innerText = matchedRole.title;
+      document.getElementById('resultSalary').innerText = matchedRole.salaryFormatted;
+      document.getElementById('resultGrowth').innerText = matchedRole.growthText;
+
+      showToast(`Quiz completed! Matched with ${matchedRole.title}`, 'fa-trophy');
+    }
+
+    function applyQuizResultToExplore() {
+      const title = document.getElementById('resultTopRole').innerText;
+      const matched = careerData.find(c => c.title === title);
+      if (matched) {
+        setCategoryFilter(matched.category);
+        selectedRoadmapRoleId = matched.id;
+        document.getElementById('roadmapRoleSelector').value = matched.id;
+        renderRoadmapMilestones();
+      }
+      scrollToExplore();
+    }
+
+    function resetQuiz() {
+      quizStep = 1;
+      quizAnswers = {};
+      document.getElementById('quizResultScreen').classList.add('hidden');
+      document.getElementById('quizQuestion1').classList.remove('hidden');
+      document.getElementById('quizQuestion2').classList.add('hidden');
+      document.getElementById('quizQuestion3').classList.add('hidden');
+
+      document.getElementById('quizStepBadge').innerText = '1';
+      document.getElementById('quizStepNum').innerText = '1';
+      document.getElementById('quizStepTitle').innerText = 'Work Style & Aptitude';
+      document.getElementById('quizProgressBar').style.width = '33%';
+    }
+
+  
+    function setCategoryFilter(cat) {
+      currentCategoryFilter = cat;
+     
+      const tabs = document.querySelectorAll('.cat-tab');
+      tabs.forEach(tab => {
+        if (tab.getAttribute('data-cat') === cat) {
+          tab.className = "cat-tab bg-brand-600 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-md transition whitespace-nowrap";
+        } else {
+          tab.className = "cat-tab bg-white hover:bg-brand-50 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-full border border-slate-200 transition whitespace-nowrap";
+        }
+      });
+
+      filterAndRenderCards();
+    }
+
+    function filterAndRenderCards() {
+      let filtered = [...careerData];
+
+      if (currentCategoryFilter !== 'all') {
+        filtered = filtered.filter(c => c.category === currentCategoryFilter);
+      }
+
+      const sortVal = document.getElementById('sortSelect').value;
+      if (sortVal === 'match') {
+        filtered.sort((a, b) => b.matchScore - a.matchScore);
+      } else if (sortVal === 'salary') {
+        filtered.sort((a, b) => b.salaryMax - a.salaryMax);
+      } else if (sortVal === 'growth') {
+        filtered.sort((a, b) => b.growth - a.growth);
+      }
+
+      renderCardsList(filtered);
+    }
+
+    function renderCardsList(list) {
+      const container = document.getElementById('cardsGrid');
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-slate-200">
+            <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-3"></i>
+            <h4 class="font-bold text-slate-700">No matching career paths found</h4>
+            <p class="text-xs text-slate-400 mt-1">Try resetting your search query or category tab.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(role => `
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm card-hover-effect flex flex-col justify-between relative group">
+          
+          <!-- Card Top Bar -->
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                ${role.category}
+              </span>
+              <div class="bg-brand-50 text-brand-700 font-extrabold text-xs px-2.5 py-1 rounded-full border border-brand-200 flex items-center space-x-1">
+                <i class="fa-solid fa-circle-check text-brand-600"></i>
+                <span>${role.matchScore}% Match</span>
+              </div>
+            </div>
+
+            <!-- Role Title -->
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-700 transition leading-snug">
+              ${role.title}
+            </h3>
+
+            <!-- Star Ratings -->
+            <div class="flex items-center space-x-1.5 text-amber-400 text-xs mt-1.5 font-semibold">
+              <i class="fa-solid fa-star"></i>
+              <span class="text-slate-800 font-bold">${role.rating}</span>
+              <span class="text-slate-400">(${role.reviewCount} reviews)</span>
+            </div>
+
+            <!-- Description -->
+            <p class="text-slate-500 text-xs line-clamp-2 mt-3 leading-relaxed">
+              ${role.description}
+            </p>
+
+            <!-- Salary & Growth Badges -->
+            <div class="grid grid-cols-2 gap-2 my-4 pt-3 border-t border-slate-100">
+              <div class="bg-slate-50 p-2.5 rounded-xl">
+                <span class="text-[10px] text-slate-400 font-semibold block">Avg Salary</span>
+                <span class="text-xs font-bold text-slate-800">${role.salaryFormatted}</span>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-xl">
+                <span class="text-[10px] text-slate-400 font-semibold block">5-Yr Demand</span>
+                <span class="text-xs font-bold text-brand-600">${role.growthText}</span>
+              </div>
+            </div>
+
+            <!-- Skill Tags -->
+            <div class="flex flex-wrap gap-1 mb-4">
+              ${role.tags.map(t => `<span class="bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-md">${t}</span>`).join('')}
+            </div>
+          </div>
+
+          <!-- Card Actions -->
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+            <button onclick="openCardDetails(${role.id})" class="text-xs font-bold text-slate-900 hover:text-brand-600 flex items-center space-x-1 transition">
+              <span>View Full Roadmap</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            
+            <button onclick="selectTargetRoleFromCard(${role.id})" class="bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-extrabold px-3 py-1.5 rounded-xl transition border border-brand-200">
+              + Track Path
+            </button>
+          </div>
+
+        </div>
+      `).join('');
+    }
+
+    
+    function openCardDetails(id) {
+      const role = careerData.find(c => c.id === id);
+      if (!role) return;
+
+      const headerContainer = document.getElementById('modalHeaderContent');
+      const bodyContainer = document.getElementById('modalBodyContent');
+      const selectBtn = document.getElementById('modalSelectRoadmapBtn');
+
+      headerContainer.innerHTML = `
+        <div class="flex items-center space-x-3 mb-2">
+          <span class="bg-brand-100 text-brand-700 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+            ${role.category}
+          </span>
+          <span class="text-emerald-600 bg-emerald-50 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200">
+            ${role.matchScore}% Compatibility
+          </span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900">${role.title}</h2>
+      `;
+
+      bodyContainer.innerHTML = `
+        <p class="text-slate-600 leading-relaxed">${role.description}</p>
+        
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+          <div>
+            <span class="text-xs text-slate-400 font-semibold block">Salary Spectrum</span>
+            <span class="text-base font-extrabold text-slate-800">${role.salaryFormatted}</span>
+          </div>
+          <div>
+            <span class="text-xs text-slate-400 font-semibold block">Market Growth Rate</span>
+            <span class="text-base font-extrabold text-brand-600">${role.growthText}</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-900 mb-1 flex items-center space-x-2">
+            <i class="fa-solid fa-graduation-cap text-brand-600"></i>
+            <span>Recommended Education &amp; Micro-Degrees</span>
+          </h4>
+          <p class="text-xs bg-purple-50 text-purple-900 p-3 rounded-xl border border-purple-200 font-semibold">
+            ${role.degree}
+          </p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-900 mb-2 flex items-center space-x-2">
+            <i class="fa-solid fa-list-check text-brand-600"></i>
+            <span>Key Skill Roadmap Milestones</span>
+          </h4>
+          <ul class="space-y-2">
+            ${role.milestones.map(m => `
+              <li class="flex items-center text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <i class="fa-solid ${m.done ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300'} mr-2.5 text-sm"></i>
+                <span class="font-medium">${m.title}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+
+      selectBtn.onclick = () => {
+        selectTargetRoleFromCard(role.id);
+        closeCardDetails();
+      };
+
+      document.getElementById('detailModal').classList.remove('hidden');
+      document.getElementById('detailModal').classList.add('flex');
+    }
+
+    function closeCardDetails() {
+      document.getElementById('detailModal').classList.add('hidden');
+      document.getElementById('detailModal').classList.remove('flex');
+    }
+
+    function selectTargetRoleFromCard(id) {
+      selectedRoadmapRoleId = id;
+      document.getElementById('roadmapRoleSelector').value = id;
+      renderRoadmapMilestones();
+      document.getElementById('roadmap-section').scrollIntoView({ behavior: 'smooth' });
+      showToast(`Active roadmap updated!`, 'fa-route');
+    }
+
+   
+    function populateRoadmapSelector() {
+      const selector = document.getElementById('roadmapRoleSelector');
+      selector.innerHTML = careerData.map(role => `
+        <option value="${role.id}">${role.title} (${role.matchScore}% Match)</option>
+      `).join('');
+    }
+
+    function changeRoadmapRole() {
+      const selector = document.getElementById('roadmapRoleSelector');
+      selectedRoadmapRoleId = parseInt(selector.value, 10);
+      renderRoadmapMilestones();
+    }
+
+    function renderRoadmapMilestones() {
+      const role = careerData.find(c => c.id === selectedRoadmapRoleId);
+      if (!role) return;
+
+      const container = document.getElementById('roadmapTasksContainer');
+      container.innerHTML = role.milestones.map((m, idx) => `
+        <div onclick="toggleMilestone(${idx})" class="p-4 rounded-2xl bg-white border ${m.done ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-200'} hover:border-brand-400 transition cursor-pointer flex items-start space-x-3 group shadow-sm">
+          <div class="mt-0.5">
+            <input 
+              type="checkbox" 
+              ${m.done ? 'checked' : ''} 
+              class="w-5 h-5 rounded-md text-brand-600 focus:ring-brand-500 cursor-pointer accent-purple-600"
+              onchange="toggleMilestone(${idx})"
+            />
+          </div>
+          <div class="flex-1">
+            <div class="text-[10px] font-extrabold uppercase tracking-wider ${m.done ? 'text-emerald-600' : 'text-slate-400'}">
+              ${m.phase}
+            </div>
+            <div class="text-sm font-bold ${m.done ? 'text-slate-800 line-through decoration-slate-400' : 'text-slate-900'}">
+              ${m.title}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      calculateReadinessScore(role);
+    }
+
+    function toggleMilestone(idx) {
+      const role = careerData.find(c => c.id === selectedRoadmapRoleId);
+      if (!role || !role.milestones[idx]) return;
+
+      role.milestones[idx].done = !role.milestones[idx].done;
+      renderRoadmapMilestones();
+
+      if (role.milestones[idx].done) {
+        showToast('Milestone completed! Readiness score increased.', 'fa-circle-check');
+      }
+    }
+
+    function resetRoadmapProgress() {
+      const role = careerData.find(c => c.id === selectedRoadmapRoleId);
+      if (!role) return;
+
+      role.milestones.forEach(m => m.done = false);
+      renderRoadmapMilestones();
+      showToast('Progress reset for selected path.', 'fa-arrow-rotate-left');
+    }
+
+    function calculateReadinessScore(role) {
+      const total = role.milestones.length;
+      const completed = role.milestones.filter(m => m.done).length;
+      const percentage = Math.round((completed / total) * 100);
+
+      document.getElementById('readinessPercentage').innerText = `${percentage}%`;
+      document.getElementById('readinessBar').style.width = `${percentage}%`;
+
+      const badge = document.getElementById('readinessBadge');
+      const msg = document.getElementById('readinessMessage');
+
+      if (percentage === 100) {
+        badge.className = "bg-emerald-500 text-white font-extrabold text-xs px-3 py-1 rounded-full animate-bounce";
+        badge.innerText = "Job Ready!";
+        msg.innerText = "Congratulations! You have completed 100% of the recommended milestones for this career path.";
+      } else if (percentage >= 60) {
+        badge.className = "bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 text-xs font-bold px-3 py-1 rounded-full";
+        badge.innerText = "Advanced";
+        msg.innerText = "Great progress! Complete remaining Phase 3 launch items to start portfolio applications.";
+      } else {
+        badge.className = "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold px-3 py-1 rounded-full";
+        badge.innerText = "On Track";
+        msg.innerText = "Focus on completing Phase 1 core milestone items to unlock project recommendations.";
+      }
+    }
+  </script>
+
+</body>
+</html>
